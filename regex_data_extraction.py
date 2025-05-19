@@ -189,3 +189,22 @@ def save_to_files(data_dict):
             f.write("\n")
     print("  Combined category save complete.\n")
     time.sleep(0.5)
+
+# Display the extracted data on the local machine's console.
+def print_extracted_data(data_dict):
+    """
+    Print extracted data to the console.
+    Handle tuple results from regex with capturing groups.
+    """
+    for category, items in data_dict.items():
+        print(f"--- {category.replace('_', ' ').title()} ---")
+        if items:
+            for item in items:
+                if isinstance(item, tuple):
+                    line = ''.join([part for part in item if part])
+                else:
+                    line = item
+                print(f"  • {line}")
+        else:
+            print("  • No matches found")
+        print()
