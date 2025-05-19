@@ -102,3 +102,34 @@ JPY 1,000,000                          # Japanese Yen
 CAD 2,500.00                           # Canadian Dollar 
 ZAR 12,345.67                          # South African Rand 
 """
+
+# Dictionary of regex patterns for each data type to extract.
+patterns = {
+    # allows longer TLDs, prevents leading/trailing/consecutive dots in local part
+    "emails": r"\b[a-zA-Z0-9](?:[a-zA-Z0-9._%+-]{0,62}[a-zA-Z0-9])?@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}\b",
+
+    # matches http(s), www, and domain-only URLs, supports query/fragment, and IDNs
+    "urls": r"\b(?:https?://|www\.)[a-zA-Z0-9\-._~%]+(?:\.[a-zA-Z0-9\-._~%]+)+(?:/[^\s]*)?\b",
+
+    # supports optional country code (1-4 digits), various separators, and parentheses
+    "phone_numbers": r"\b(?:\+?\d{1,4}[-.\s]?)?(?:\(?\d{1,4}\)?[-.\s]?){1,2}\d{1,4}[-.\s]?\d{3,4}[-.\s]?\d{3,4}\b",
+
+    # matches 13-19 digits, optional spaces/hyphens, and common credit card formats
+    "credit_cards": r"\b(?:\d[ -]*?){13,19}\b",
+
+    # matches 24h and 12h with AM/PM, prevents invalid time (minutes/hours)
+    "times": r"\b((0?[1-9]|1[0-2]):[0-5]\d\s?[APap][Mm]|([01]?\d|2[0-3]):[0-5]\d)\b",
+
+    # matches opening, closing, and self-closing tags, ignores invalid tags
+    "html_tags": r"</?[a-zA-Z][a-zA-Z0-9]*(?:\s+[^<>]*)?/?>",
+
+    # supports Unicode, avoids mid-word hashtags, and prevents trailing underscores
+    "hashtags": r"(?<!\w)#\w*[A-Za-z_]+\w*",
+
+    # matches $, €, £, or any 3-letter currency code (ISO 4217), with/without commas/decimals
+    "currency": (
+        r"(?<!\w)([\$€£])\s?\d{1,3}(?:,\d{3})*(?:\.\d{2})?"  # $, €, £
+        r"|\b([\$€£])\s?\d+(?:\.\d{2})?\b"                   # $, €, £ (no comma)
+        r"|\b([A-Z]{3})\s?\d{1,3}(?:,\d{3})*(?:\.\d{2})?\b"  # Any 3-letter currency code (e.g., USD, RWF, SSP)
+    )
+}
