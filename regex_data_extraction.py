@@ -220,4 +220,4 @@ if __name__ == "__main__":
     # 4. Save the extracted data to files.
     save_to_files(extracted)
     # 5. Print a completion message.
-    print(f"Thank you for using the Regex Data Extraction Tool, {user_name}! All data extracted and saved successfully."\nList extracted data files for categorical verification/reference.)
+    print(f"Thank you for using the Regex Data Extraction Tool, {user_name}! All data extracted and saved successfully."\nList extracted data files for categorical verification/reference.")
