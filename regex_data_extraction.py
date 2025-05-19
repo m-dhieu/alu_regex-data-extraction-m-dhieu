@@ -133,3 +133,19 @@ patterns = {
         r"|\b([A-Z]{3})\s?\d{1,3}(?:,\d{3})*(?:\.\d{2})?\b"  # Any 3-letter currency code (e.g., USD, RWF, SSP)
     )
 }
+
+# Extract data.
+def extract_data(text):
+    """
+    Extract data matching each regex pattern from the input text.
+    Return a dictionary with keys as data types and values as lists of matches.
+    """
+    results = {}
+    for category, pattern in patterns.items():
+        print(f"Extracting {category.replace('_', ' ')}...")
+        time.sleep(1)  # simulate processing delay
+        matches = re.findall(pattern, text, flags=re.IGNORECASE)
+        results[category] = matches
+        print(f"  Found {len(matches)} matches.\n")
+        time.sleep(1)
+    return results
