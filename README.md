@@ -49,10 +49,10 @@ python3 regex_data_extraction.py
 
 ```
 alu_regex-data-extraction-m-dhieu/
-├── README.md                            # project documentation
+├── README.md                      # project documentation
 ├── regex_data_extraction.py       # main Python script  
-├── .gitignore                                 # file tracker
-└── (name)_extracted_data.txt     # extracted data files
+├── .gitignore                     # file tracker
+└── (name)_extracted_data.txt      # separate extracted data files and a combined all extracted data file
 ```
 
 ---
