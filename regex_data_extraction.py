@@ -149,3 +149,43 @@ def extract_data(text):
         print(f"  Found {len(matches)} matches.\n")
         time.sleep(1)
     return results
+
+# Save the extracted data.
+def save_to_files(data_dict):
+    """
+    Save extracted data to individual category files and a combined summary file.
+    Handle tuple results from regex with capturing groups.
+    """
+    for category, items in data_dict.items():
+        filename = f"{category}_extracted.txt"
+        print(f"Saving {len(items)} {category.replace('_', ' ')} to {filename}...")
+        with open(filename, 'w', encoding='utf-8') as f:
+            for item in items:
+                # Handle tuple results from regex with capturing groups.
+                if isinstance(item, tuple):
+                    line = ''.join([part for part in item if part])
+                else:
+                    line = item
+                f.write(line + "\n")
+        print("  Individual category save complete.\n")
+        time.sleep(0.5)
+
+    # Save all extracted data into a single summary file.
+    combined_filename = "all_extracted_data.txt"
+    print(f"Saving all extracted data to {combined_filename}...")
+    with open(combined_filename, 'w', encoding='utf-8') as f:
+        for category, items in data_dict.items():
+            header = f"--- {category.replace('_', ' ').title()} ---\n"
+            f.write(header)
+            if items:
+                for item in items:
+                    if isinstance(item, tuple):
+                        line = ''.join([part for part in item if part])
+                    else:
+                        line = item
+                    f.write(f"{line}\n")
+            else:
+                f.write("No matches found\n")
+            f.write("\n")
+    print("  Combined category save complete.\n")
+    time.sleep(0.5)
