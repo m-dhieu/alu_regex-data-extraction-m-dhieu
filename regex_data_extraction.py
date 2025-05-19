@@ -208,3 +208,16 @@ def print_extracted_data(data_dict):
         else:
             print("  • No matches found")
         print()
+
+# Main program flow:
+if __name__ == "__main__":
+    # 1. Welcome user and get their name.
+    user_name = welcome_user()
+    # 2. Extract data from the sample text using regex patterns.
+    extracted = extract_data(sample_text)
+    # 3. Display the extracted data on the local machine's console.
+    print_extracted_data(extracted)
+    # 4. Save the extracted data to files.
+    save_to_files(extracted)
+    # 5. Print a completion message.
+    print(f"Thank you for using the Regex Data Extraction Tool, {user_name}! All data extracted and saved successfully."\nList extracted data files for categorical verification/reference.)
