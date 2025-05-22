@@ -43,6 +43,7 @@ python3 regex_data_extraction.py
 - Navigate the menu to test your data or view sample extracted data.
 - View saved extracted data in their respective individual text files (e.g., `emails_extracted.txt`) or the combined summary file, `all_extracted_data.txt`, in your console.
 - Modify the `sample_text` variable in the data extraction script to test data that suits you (This data is in-built and not the same as the one that you enter on your console for testing).
+- **Note:** Once you exit the tool, you have to run the script again to view the navigation menu. You will have to test new data, as you will automatically have no saved extracted data at this point.
 
 ---
 
