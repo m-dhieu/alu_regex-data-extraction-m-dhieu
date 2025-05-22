@@ -1,6 +1,6 @@
 # Regex Data Extraction Tool
 
-This tool extracts various data types from text using Regular Expressions (regex). It supports extracting email addresses, URLs, phone numbers, credit card numbers, times (12h/24h), HTML tags, hashtags, and currency amounts. The tool provides interactive prompts and progress updates, and saves extracted data into separate files and a combined summary file.
+This tool extracts various data types from text using Regular Expressions (regex). It supports extracting email addresses, URLs, phone numbers, credit card numbers, times (12h/24h), HTML tags, and currency amounts. These data types are essential for web scraping, data validation, and information retrieval from diverse text sources. The tool provides interactive prompts and progress updates, allows the user to view sample data or test their own data, and saves extracted data into separate files and a combined summary file.
 
 ---
 
@@ -40,8 +40,9 @@ python3 regex_data_extraction.py
 
 - Enter your name when prompted to personalize your experience.
 - Read the progress messages to be informed on the data extraction progress.
-- View saved extracted data in their respective individual text files (e.g., `emails_extracted.txt`) or the combined summary file, `all_extracted_data.txt`.
-- Modify the `sample_text` variable in the data extraction script to test with your data.
+- Navigate the menu to test your data or view sample extracted data.
+- View saved extracted data in their respective individual text files (e.g., `emails_extracted.txt`) or the combined summary file, `all_extracted_data.txt`, in your console.
+- Modify the `sample_text` variable in the data extraction script to test data that suits you (This data is in-built and not the same as the one that you enter on your console for testing).
 
 ---
 
