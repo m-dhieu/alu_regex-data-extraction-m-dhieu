@@ -6,7 +6,7 @@ import sys
 import re
 import time
 
-# Add execute permission to the file for the user.
+# Add execute permission to the file for Unix user(s).
 if __name__ == "__main__":
     script_path = os.path.abspath(sys.argv[0])
     current_permissions = os.stat(script_path).st_mode
@@ -21,9 +21,11 @@ def welcome_user():
     user_name = input("> ").strip()
     print(f"\nHello {user_name} 😊")
     print("Welcome to the Regex Data Extraction Tool!")
+    time.sleep(1)
+    print("This tool extracts emails, URLs, phone numbers, credit cards, times(12h/24h), HTML tags, and currency amounts from text.")
     time.sleep(2)
-    print("This tool extracts emails, URLs, phone numbers, credit cards, times(12h/24h), HTML tags, hashtags, and currency amounts from text.")
-    time.sleep(3)
+    print("These data types are essential for web scraping, data validation, and information retrieval from diverse text sources.")
+    time.sleep(2)
     print("Let's get started...\n")
     time.sleep(1)
     return user_name
@@ -35,7 +37,10 @@ user@example.com                        # standard email
 firstname.lastname@company.co.uk        # email with subdomain and country TLD
 bad-email@.com                          # malformed email
 user@domain                             # malformed email (no TLD)
-m.dhieu@alustudent.com                  # existing email with standard format
+m.dhieu@alustudent.com                  # existing email on web with standard format
+user..name@example.com                  # consecutive dots
+user@example-.com                       # domain starts with hyphen
+test@example.museum                     # Valid TLD
 
 URLs:
 https://www.example.com                 # standard HTTPS URL
@@ -44,7 +49,12 @@ http://example.net                      # HTTP URL
 ftp://invalid.protocol.com              # malformed (unsupported protocol)
 www.missingprotocol.com                 # URL without protocol
 https://github.com/m-dhieu              # existing standard HTTPS URL
-www.agasobanuyefilms.com                # existing URL
+www.agasobanuyefilms.com                # existing URL on web
+example.com                             # No protocol
+https://example.com/with space          # URL with space
+https://example.com?query=value         # URL with query string
+https://example.com#fragment            # URL with fragment
+https://user:password@example.com       # URL with authentication
 
 Phone numbers:
 (123) 456-7890                          # US format (parentheses)
@@ -57,20 +67,36 @@ Phone numbers:
 +211 92 123 4567                        # South Sudan (country code +211)
 +250 788 123 456                        # Rwanda (country code +250)
 +1 202 555 0173                         # US (country code +1)
++44 7700 900000                         # UK (country code +44)
+447700900000                            # UK format (no plus)
+07700 900000                            # UK format (no country code)
+1-800-MONICA                            # US toll-free with letters
 
 Credit card numbers:
 1234 5678 9012 3456                     # standard 16-digit
 1234-5678-9012-3456                     # 16-digit with dashes
 1234567890123456                        # 16-digit plain
 1234-5678-9012                          # malformed (too short)
+1234 5678 9012 345                      # 15 digit
+1234 5678 9012 34567                    # 17 digit
+4111111111111111                        # Visa
+341111111111111                         # American Express
+5111111111111111                        # MasterCard
+371111111111111                         # Amex another
 
 Times:
 14:30                                  # 24-hour format
+23:10                                  # 24-hour format
 2:30 PM                                # 12-hour format
 11:59 PM                               # 12-hour format
 25:61                                  # invalid time
 13:60                                  # invalid time
-00:00 AM                               # edge case
+00:00 AM                               # 12-hour midnight
+00:00                                  # standard 24-hour midnight
+00:00 PM                               # invalid time
+00:0                                   # Invalid time
+0:00                                   # no leading zero 24-hour midnight
+00.00                                  # dot separator
 
 HTML tags:
 <p>                                    # simple tag
@@ -79,13 +105,6 @@ HTML tags:
 <a href="https://example.com" target="_blank"> # tag with URL attribute
 <123invalid>                           # malformed tag
 <selfclosing/>                         # self-closing tag
-
-Hashtags:
-#example                               # simple hashtag
-#ThisIsAHashtag                        # CamelCase hashtag
-#123numbers                            # hashtag starting with numbers
-hello#world                            # hashtag in the middle of text
-#_underscore                           # hashtag with underscore
 
 Currency amounts:
 $19.99                                 # US Dollar 
@@ -103,6 +122,7 @@ INR 75,000.00                          # Indian Rupee
 JPY 1,000,000                          # Japanese Yen  
 CAD 2,500.00                           # Canadian Dollar 
 ZAR 12,345.67                          # South African Rand 
+1200                                   # no specific currency
 """
 
 # Dictionary of regex patterns for each data type to extract.
@@ -116,17 +136,14 @@ patterns = {
     # supports optional country code (1-4 digits), various separators, and parentheses
     "phone_numbers": r"\b(?:\+?\d{1,4}[-.\s]?)?(?:\(?\d{1,4}\)?[-.\s]?){1,2}\d{1,4}[-.\s]?\d{3,4}[-.\s]?\d{3,4}\b",
 
-    # matches 13-19 digits, optional spaces/hyphens, and common credit card formats
-    "credit_cards": r"\b(?:\d[ -]*?){13,19}\b",
+    # matches 13-19 digits, optional spaces/hyphens, and common credit card formats (including Visa, MasterCard, American Express)
+    "credit_cards": r"\b(?:4[0-9]{12}|5[1-5][0-9]{14}|3[47][0-9]{13})\b",
 
     # matches 24h and 12h with AM/PM, prevents invalid time (minutes/hours)
     "times": r"\b((0?[1-9]|1[0-2]):[0-5]\d\s?[APap][Mm]|([01]?\d|2[0-3]):[0-5]\d)\b",
 
     # matches opening, closing, and self-closing tags, ignores invalid tags
     "html_tags": r"</?[a-zA-Z][a-zA-Z0-9]*(?:\s+[^<>]*)?/?>",
-
-    # supports Unicode, avoids mid-word hashtags, and prevents trailing underscores
-    "hashtags": r"(?<!\w)#\w*[A-Za-z_]+\w*",
 
     # matches $, €, £, or any 3-letter currency code (ISO 4217), with/without commas/decimals
     "currency": (
@@ -211,15 +228,89 @@ def print_extracted_data(data_dict):
             print("  • No matches found")
         print()
 
+# Allow user to test user-provided data.
+def test_user_data(patterns):
+    """Allow the user to input text and test it against the provided regex patterns."""
+    user_last_results = None
+    while True:
+        user_input = input(
+            "\nEnter text to test (or type 'exit' to see your saved sample extraction): "
+        )
+        if user_input.lower() == "exit":
+            if user_last_results:
+                return user_last_results
+            else:
+                return None
+        if not user_input.strip():
+            print("Please enter your text.")
+            continue
+
+        user_test_results = {}
+        for category, pattern in patterns.items():
+            matches = re.findall(pattern, user_input, flags=re.IGNORECASE)
+            user_test_results[category] = matches
+
+        print("\n--- User Test Results ---")
+        print_extracted_data(user_test_results)
+
+        user_last_results = user_test_results  # save user results
+
+        another_test = input("Test again? (yes/no): ")
+        if another_test.lower() != "yes":
+            return user_last_results
+
 # Main program flow:
 if __name__ == "__main__":
     # 1. Welcome user and get their name.
     user_name = welcome_user()
-    # 2. Extract data from the sample text using regex patterns.
-    extracted = extract_data(sample_text)
-    # 3. Display the extracted data on the local machine's console.
-    print_extracted_data(extracted)
-    # 4. Save the extracted data to files.
-    save_to_files(extracted)
-    # 5. Print a completion message.
-    print(f"Thank you for using the Regex Data Extraction Tool, {user_name}! All data extracted and saved successfully.\nList extracted data files for categorical verification/reference.")
+    # 2. Show user the navigation menu.
+    while True:
+        print("\nWhat would you like to do?")
+        print("1. Test your own data")
+        print("2. See built-in sample extracted data")
+        print("3. Exit")
+        choice = input("Enter 1, 2, or 3: ").strip()
+
+        if choice == "1":
+            try:
+                user_results = test_user_data(patterns)
+                if user_results and any(user_results.values()) and any(len(v) > 0 for v in user_results.values()):
+                    save_to_files(user_results)
+                    print("\nYour extracted data has been saved to respective files in this directory:")
+                    time.sleep(0.5)
+                    for file in os.listdir():
+                        if file.endswith("_extracted.txt") or file == "all_extracted_data.txt":
+                            print(f"  • {file}")
+                            time.sleep(0.5)
+                            print("Exit and list the files in your current directory to view/verify/reference.")
+                else:
+                    print("No data was entered/extracted!")
+            except Exception as e:
+                print(f"An error occurred during data testing: {e}")
+        elif choice == "2":
+            try:
+                # 4. Extract data from the sample text using regex patterns.
+                extracted = extract_data(sample_text)
+                # 5. Display the extracted data on the local machine's console.
+                print_extracted_data(extracted)
+                # 6. Save the extracted data to files.
+                save_to_files(extracted)
+                print(f"Thank you for using the Regex Data Extraction Tool, {user_name}!\nAll data was extracted and saved successfully.\n")
+                # 7. Display saved files.
+                print("Saved extracted data files in this directory:")
+                for file in os.listdir():
+                    if file.endswith("_extracted.txt") or file == "all_extracted_data.txt":
+                        print(f"  • {file}")
+                        time.sleep(0.5)
+                print("Exit and list the files in your current directory to view/verify/reference.")
+            except Exception as e:
+                print(f"An error occurred during extraction/saving: {e}")
+        elif choice == "3":
+            # 8. Print a completion/exit message.
+            print("List the files in your current directory to view/verify/reference saved extracted data.")
+            time.sleep(0.5)
+            print(f"Goodbye, {user_name}! 👋")
+            break
+        else:
+            print("Invalid option. Please enter 1, 2, or 3.")
+            
