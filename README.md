@@ -82,7 +82,7 @@ Welcome to contribute:
 
 4. Push to your fork and open a pull request.
 
-Thank you for considering contributing. Feel free to open issues for questions, suggestions, or bug reports.
+Thank you for considering to contribute. Feel free to open issues for questions, suggestions, or bug reports.
 
 ---
 
